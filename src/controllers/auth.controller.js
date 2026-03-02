@@ -10,17 +10,17 @@ class AuthController {
    */
   async register(req, res, next) {
     try {
-      const { username, password } = req.body;
+      const { username, email, password, phone } = req.body;
 
       // Validaciones básicas
-      if (!username || !password) {
+      if (!username || !email || !password) {
         return res.status(400).json({
           success: false,
-          message: 'Usuario y contraseña son requeridos.',
+          message: 'Usuario, email y contraseña son requeridos.',
         });
       }
 
-      const user = await authService.register(username, password);
+      const user = await authService.register({ username, email, password, phone });
 
       res.status(201).json({
         success: true,
@@ -38,17 +38,18 @@ class AuthController {
    */
   async login(req, res, next) {
     try {
-      const { username, password } = req.body;
+      const { username, email, password } = req.body;
+      const identifier = username || email;
 
       // Validaciones básicas
-      if (!username || !password) {
+      if (!identifier || !password) {
         return res.status(400).json({
           success: false,
-          message: 'Usuario y contraseña son requeridos.',
+          message: 'Usuario/email y contraseña son requeridos.',
         });
       }
 
-      const result = await authService.login(username, password);
+      const result = await authService.login(identifier, password);
 
       res.status(200).json({
         success: true,
