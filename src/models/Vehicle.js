@@ -36,6 +36,16 @@ const vehicleSchema = new mongoose.Schema(
       trim: true,
       maxlength: [1000, 'La descripción no puede exceder 1000 caracteres'],
     },
+    images: {
+      type: [String],
+      default: [],
+      validate: {
+        validator: function (images) {
+          return images.length <= 10;
+        },
+        message: 'No se pueden agregar más de 10 imágenes',
+      },
+    },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
