@@ -13,7 +13,9 @@ Content-Type: application/json
 
 {
   "username": "juanperez",
-  "password": "password123"
+  "email": "juan.perez@example.com",
+  "password": "password123",
+  "phone": "+52-555-1234567"
 }
 ```
 
@@ -24,7 +26,9 @@ Content-Type: application/json
   "message": "Usuario registrado exitosamente.",
   "data": {
     "id": "65f8a3b2c1d4e5f6a7b8c9d0",
-    "username": "juanperez"
+    "username": "juanperez",
+    "email": "juan.perez@example.com",
+    "phone": "+52-555-1234567"
   }
 }
 ```
@@ -33,13 +37,24 @@ Content-Type: application/json
 
 ## 🔐 AUTH - Login
 
-### Request
+### Request (con username)
 ```http
 POST /api/auth/login
 Content-Type: application/json
 
 {
   "username": "juanperez",
+  "password": "password123"
+}
+```
+
+### Request alternativo (con email)
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "juan.perez@example.com",
   "password": "password123"
 }
 ```
@@ -53,7 +68,9 @@ Content-Type: application/json
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1ZjhhM2IyYzFkNGU1ZjZhN2I4YzlkMCIsImlhdCI6MTcwOTY0OTYwMCwiZXhwIjoxNzEwMjU0NDAwfQ.xYz123abc456def789ghi012jkl345mno678pqr",
     "user": {
       "id": "65f8a3b2c1d4e5f6a7b8c9d0",
-      "username": "juanperez"
+      "username": "juanperez",
+      "email": "juan.perez@example.com",
+      "phone": "+52-555-1234567"
     }
   }
 }
