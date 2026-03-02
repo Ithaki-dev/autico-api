@@ -12,6 +12,7 @@ API RESTful profesional para plataforma de publicación y consulta de automóvil
 - ✅ Manejo global de errores
 - ✅ Paginación
 - ✅ Filtros mediante query parameters
+- ✅ Soporte para imágenes de vehículos (hasta 10 por vehículo)
 - ✅ Código limpio y profesional
 
 ## 🛠️ Tecnologías
@@ -349,7 +350,47 @@ Incluir el token en el header de autorización:
 Authorization: Bearer <token>
 ```
 
-## 📝 Validaciones
+## � Gestión de Imágenes
+
+El modelo de vehículos soporta hasta **10 imágenes** por vehículo. Las imágenes se almacenan como URLs en un array.
+
+### Implementación Recomendada
+
+Para un sistema completo de gestión de imágenes, se recomienda:
+
+1. **Servicio de Almacenamiento**: Usar un servicio externo como:
+   - AWS S3
+   - Cloudinary
+   - Google Cloud Storage
+   - Firebase Storage
+
+2. **Flujo de Carga**:
+   - El frontend sube las imágenes al servicio de almacenamiento
+   - El servicio retorna las URLs de las imágenes
+   - El frontend envía las URLs al backend en el array `images`
+
+3. **Ejemplo de Estructura**:
+```json
+{
+  "brand": "Toyota",
+  "model": "Corolla",
+  "year": 2020,
+  "price": 25000,
+  "images": [
+    "https://tu-bucket.s3.amazonaws.com/vehicles/image1.jpg",
+    "https://tu-bucket.s3.amazonaws.com/vehicles/image2.jpg"
+  ]
+}
+```
+
+### Validaciones de Imágenes
+
+- **Máximo**: 10 imágenes por vehículo
+- **Formato**: Array de strings (URLs)
+- **Opcional**: El campo `images` es opcional al crear un vehículo
+- **Actualizable**: Las imágenes pueden actualizarse en cualquier momento
+
+## �📝 Validaciones
 
 ### Usuario
 - `username`: Requerido, único, mínimo 3 caracteres
