@@ -122,7 +122,7 @@ class VehicleService {
     }
 
     // Actualizar campos permitidos
-    const allowedUpdates = ['brand', 'model', 'year', 'price', 'description'];
+    const allowedUpdates = ['brand', 'model', 'year', 'price', 'description', 'images'];
     allowedUpdates.forEach((field) => {
       if (vehicleData[field] !== undefined) {
         vehicle[field] = vehicleData[field];
