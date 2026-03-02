@@ -268,7 +268,11 @@ Content-Type: application/json
   "model": "Corolla",
   "year": 2020,
   "price": 25000,
-  "description": "Excelente estado, único dueño"
+  "description": "Excelente estado, único dueño",
+  "images": [
+    "https://example.com/images/car1.jpg",
+    "https://example.com/images/car2.jpg"
+  ]
 }
 ```
 
@@ -357,6 +361,7 @@ Authorization: Bearer <token>
 - `year`: Requerido, número válido entre 1900 y año actual + 1
 - `price`: Requerido, número positivo
 - `description`: Opcional, máximo 1000 caracteres
+- `images`: Opcional, array de URLs de imágenes (máximo 10)
 - `status`: `available` o `sold` (default: `available`)
 
 ### Pregunta
