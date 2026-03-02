@@ -23,9 +23,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Índices para búsquedas eficientes
-userSchema.index({ username: 1 });
-
 /**
  * Método para comparar contraseñas
  */
