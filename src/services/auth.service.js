@@ -10,7 +10,9 @@ class AuthService {
   /**
    * Registrar nuevo usuario
    */
-  async register(username, password) {
+  async register(userData) {
+    const { username, email, password, phone } = userData;
+
     // Validar longitud de contraseña
     if (password.length < 6) {
       const error = new Error('La contraseña debe tener al menos 6 caracteres.');
@@ -24,21 +26,27 @@ class AuthService {
     // Crear usuario
     const user = await User.create({
       username,
+      email,
+      phone,
       passwordHash,
     });
 
     return {
       id: user._id,
       username: user.username,
+      email: user.email,
+      phone: user.phone,
     };
   }
 
   /**
    * Iniciar sesión
    */
-  async login(username, password) {
-    // Buscar usuario
-    const user = await User.findOne({ username });
+  async login(identifier, password) {
+    // Buscar usuario por username o email
+    const user = await User.findOne({
+      $or: [{ username: identifier }, { email: identifier }],
+    });
 
     if (!user) {
       const error = new Error('Credenciales inválidas.');
@@ -65,6 +73,8 @@ class AuthService {
       user: {
         id: user._id,
         username: user.username,
+        email: user.email,
+        phone: user.phone,
       },
     };
   }
