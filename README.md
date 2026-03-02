@@ -139,7 +139,9 @@ Content-Type: application/json
 
 {
   "username": "usuario123",
-  "password": "password123"
+  "email": "usuario@example.com",
+  "password": "password123",
+  "phone": "+1234567890"
 }
 ```
 
@@ -150,7 +152,9 @@ Content-Type: application/json
   "message": "Usuario registrado exitosamente.",
   "data": {
     "id": "65f1234567890",
-    "username": "usuario123"
+    "username": "usuario123",
+    "email": "usuario@example.com",
+    "phone": "+1234567890"
   }
 }
 ```
@@ -166,6 +170,17 @@ Content-Type: application/json
 }
 ```
 
+**O con email:**
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@example.com",
+  "password": "password123"
+}
+```
+
 **Respuesta exitosa:**
 ```json
 {
@@ -175,7 +190,9 @@ Content-Type: application/json
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "user": {
       "id": "65f1234567890",
-      "username": "usuario123"
+      "username": "usuario123",
+      "email": "usuario@example.com",
+      "phone": "+1234567890"
     }
   }
 }
@@ -394,7 +411,9 @@ Para un sistema completo de gestión de imágenes, se recomienda:
 
 ### Usuario
 - `username`: Requerido, único, mínimo 3 caracteres
+- `email`: Requerido, único, formato válido de email
 - `password`: Requerido, mínimo 6 caracteres
+- `phone`: Opcional, formato numérico válido
 
 ### Vehículo
 - `brand`: Requerido
