@@ -81,6 +81,10 @@ GET /api/vehicles?brand=Toyota&minPrice=15000&maxPrice=30000&status=available&pa
       "price": 25000,
       "status": "available",
       "description": "Excelente estado, único dueño, mantenimientos al día",
+      "images": [
+        "https://example.com/images/corolla1.jpg",
+        "https://example.com/images/corolla2.jpg"
+      ],
       "owner": {
         "_id": "65f8a3b2c1d4e5f6a7b8c9d0",
         "username": "juanperez"
@@ -96,6 +100,9 @@ GET /api/vehicles?brand=Toyota&minPrice=15000&maxPrice=30000&status=available&pa
       "price": 28000,
       "status": "available",
       "description": "SUV espaciosa, perfecta para familias",
+      "images": [
+        "https://example.com/images/rav4-exterior.jpg"
+      ],
       "owner": {
         "_id": "65f8a4b3c2d5e6f7a8b9c0d1",
         "username": "mariagomez"
@@ -174,7 +181,12 @@ Content-Type: application/json
   "model": "Civic",
   "year": 2022,
   "price": 32000,
-  "description": "Como nuevo, 15,000 km recorridos"
+  "description": "Como nuevo, 15,000 km recorridos",
+  "images": [
+    "https://example.com/images/civic-front.jpg",
+    "https://example.com/images/civic-interior.jpg",
+    "https://example.com/images/civic-side.jpg"
+  ]
 }
 ```
 
@@ -191,6 +203,11 @@ Content-Type: application/json
     "price": 32000,
     "status": "available",
     "description": "Como nuevo, 15,000 km recorridos",
+    "images": [
+      "https://example.com/images/civic-front.jpg",
+      "https://example.com/images/civic-interior.jpg",
+      "https://example.com/images/civic-side.jpg"
+    ],
     "owner": {
       "_id": "65f8a3b2c1d4e5f6a7b8c9d0",
       "username": "juanperez"
