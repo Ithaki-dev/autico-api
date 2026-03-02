@@ -13,6 +13,25 @@ const userSchema = new mongoose.Schema(
       trim: true,
       minlength: [3, 'El nombre de usuario debe tener al menos 3 caracteres'],
     },
+    email: {
+      type: String,
+      required: [true, 'El correo electrónico es requerido'],
+      unique: true,
+      trim: true,
+      lowercase: true,
+      match: [
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        'Por favor ingresa un correo electrónico válido',
+      ],
+    },
+    phone: {
+      type: String,
+      trim: true,
+      match: [
+        /^[\d\s\-\+\(\)]+$/,
+        'Por favor ingresa un número de teléfono válido',
+      ],
+    },
     passwordHash: {
       type: String,
       required: [true, 'La contraseña es requerida'],
