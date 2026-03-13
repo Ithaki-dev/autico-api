@@ -14,7 +14,7 @@ class AnswerController {
       const { text } = req.body;
       const userId = req.user.id;
 
-      if (!text) {
+      if (!text || !text.trim()) {
         return res.status(400).json({
           success: false,
           message: 'El texto de la respuesta es requerido.',
@@ -23,9 +23,9 @@ class AnswerController {
 
       const answer = await answerService.createAnswer(questionId, userId, text);
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
-        message: 'Respuesta creada exitosamente.',
+        message: 'Respuesta registrada exitosamente.',
         data: answer,
       });
     } catch (error) {
