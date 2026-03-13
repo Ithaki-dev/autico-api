@@ -17,7 +17,7 @@ router.use('/auth', authRoutes);
 // Vehicle routes
 router.use('/vehicles', vehicleRoutes);
 
-// Question routes (incluye /vehicles/:vehicleId/questions y /my/questions)
+// Question routes (incluye /my/questions)
 router.use('/', questionRoutes);
 
 // Answer routes (incluye /questions/:questionId/answer)
