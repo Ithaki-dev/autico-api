@@ -14,7 +14,7 @@ class QuestionController {
       const { text } = req.body;
       const userId = req.user.id;
 
-      if (!text) {
+      if (!text || !text.trim()) {
         return res.status(400).json({
           success: false,
           message: 'El texto de la pregunta es requerido.',
@@ -27,6 +27,25 @@ class QuestionController {
         success: true,
         message: 'Pregunta creada exitosamente.',
         data: question,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Obtener preguntas de un vehículo con privacidad estricta
+   * GET /api/vehicles/:vehicleId/questions
+   */
+  async getVehicleQuestions(req, res, next) {
+    try {
+      const { vehicleId } = req.params;
+      const userId = req.user.id;
+      const questions = await questionService.getVehicleQuestions(vehicleId, userId);
+
+      res.status(200).json({
+        success: true,
+        data: questions,
       });
     } catch (error) {
       next(error);
