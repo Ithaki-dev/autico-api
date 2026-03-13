@@ -23,8 +23,6 @@ const checkVehicleOwnership = async (req, res, next) => {
       });
     }
 
-    // Pasar el vehículo al siguiente middleware/controlador
-    req.vehicle = vehicle;
     next();
   } catch (error) {
     next(error);
