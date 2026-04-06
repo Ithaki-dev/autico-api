@@ -6,6 +6,27 @@ const bcrypt = require('bcrypt');
  */
 const userSchema = new mongoose.Schema(
   {
+    cedula: {
+      type: String,
+      required: [true, 'La cédula es requerida'],
+      unique: true,
+      trim: true,
+    },
+    firstName: {
+      type: String,
+      required: [true, 'El nombre es requerido'],
+      trim: true,
+    },
+    lastName1: {
+      type: String,
+      required: [true, 'El primer apellido es requerido'],
+      trim: true,
+    },
+    lastName2: {
+      type: String,
+      required: [true, 'El segundo apellido es requerido'],
+      trim: true,
+    },
     username: {
       type: String,
       required: [true, 'El nombre de usuario es requerido'],
