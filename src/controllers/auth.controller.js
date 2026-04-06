@@ -10,24 +10,57 @@ class AuthController {
    */
   async register(req, res, next) {
     try {
-      const { username, email, password, phone } = req.body;
+      const { username, email, password, phone, cedula } = req.body;
 
       // Validaciones básicas
-      if (!username || !email || !password) {
+      if (!username || !email || !password || !cedula) {
         return res.status(400).json({
-          success: false,
-          message: 'Usuario, email y contraseña son requeridos.',
+          message: 'Username, email, contraseña y cédula son requeridos.',
         });
       }
 
-      const user = await authService.register({ username, email, password, phone });
+      if (typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
+        return res.status(400).json({
+          message: 'Username, email y contraseña deben ser texto.',
+        });
+      }
 
-      res.status(201).json({
-        success: true,
-        message: 'Usuario registrado exitosamente.',
-        data: user,
+      if (typeof cedula !== 'string') {
+        return res.status(400).json({
+          message: 'La cédula debe ser un texto.',
+        });
+      }
+
+      const normalizedCedula = cedula.trim().replace(/[-\s]/g, '');
+      if (!normalizedCedula) {
+        return res.status(400).json({
+          message: 'La cédula no puede estar vacía.',
+        });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          message: 'Por favor ingresa un correo electrónico válido.',
+        });
+      }
+
+      const result = await authService.register({
+        username: username.trim(),
+        email: email.trim(),
+        password,
+        phone,
+        cedula: normalizedCedula,
       });
+
+      res.status(201).json(result);
     } catch (error) {
+      if (error.statusCode) {
+        return res.status(error.statusCode).json({
+          message: error.message,
+        });
+      }
+
       next(error);
     }
   }
