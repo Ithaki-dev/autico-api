@@ -9,6 +9,14 @@ module.exports = {
   jwt: {
     secret: process.env.JWT_SECRET,
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    tempSecret: process.env.JWT_TEMP_SECRET,
+    tempExpiresIn: process.env.JWT_TEMP_EXPIRES_IN || '15m',
+  },
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackUrl: process.env.GOOGLE_CALLBACK_URL,
+    frontendRedirectUrl: process.env.GOOGLE_FRONTEND_REDIRECT_URL,
   },
   pagination: {
     defaultPageSize: parseInt(process.env.DEFAULT_PAGE_SIZE) || 10,
