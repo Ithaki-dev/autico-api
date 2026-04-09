@@ -8,29 +8,41 @@ const userSchema = new mongoose.Schema(
   {
     cedula: {
       type: String,
-      required: [true, 'La cédula es requerida'],
+      required: function () {
+        return this.provider === 'local' || this.isRegistrationComplete;
+      },
       unique: true,
+      sparse: true,
       trim: true,
     },
     firstName: {
       type: String,
-      required: [true, 'El nombre es requerido'],
+      required: function () {
+        return this.provider === 'local' || this.isRegistrationComplete;
+      },
       trim: true,
     },
     lastName1: {
       type: String,
-      required: [true, 'El primer apellido es requerido'],
+      required: function () {
+        return this.provider === 'local' || this.isRegistrationComplete;
+      },
       trim: true,
     },
     lastName2: {
       type: String,
-      required: [true, 'El segundo apellido es requerido'],
+      required: function () {
+        return this.provider === 'local' || this.isRegistrationComplete;
+      },
       trim: true,
     },
     username: {
       type: String,
-      required: [true, 'El nombre de usuario es requerido'],
+      required: function () {
+        return this.provider === 'local';
+      },
       unique: true,
+      sparse: true,
       trim: true,
       minlength: [3, 'El nombre de usuario debe tener al menos 3 caracteres'],
     },
@@ -55,7 +67,24 @@ const userSchema = new mongoose.Schema(
     },
     passwordHash: {
       type: String,
-      required: [true, 'La contraseña es requerida'],
+      required: function () {
+        return this.provider === 'local';
+      },
+    },
+    provider: {
+      type: String,
+      enum: ['local', 'google'],
+      default: 'local',
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
+    isRegistrationComplete: {
+      type: Boolean,
+      default: true,
     },
   },
   {
@@ -67,6 +96,10 @@ const userSchema = new mongoose.Schema(
  * Método para comparar contraseñas
  */
 userSchema.methods.comparePassword = async function (candidatePassword) {
+  if (!this.passwordHash) {
+    return false;
+  }
+
   return await bcrypt.compare(candidatePassword, this.passwordHash);
 };
 
