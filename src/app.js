@@ -1,6 +1,8 @@
 const express = require('express');
+const passport = require('passport');
 const routes = require('./routes');
 const errorHandler = require('./middlewares/errorHandler.middleware');
+require('./config/passport');
 
 /**
  * Configuración de la aplicación Express
@@ -10,6 +12,7 @@ const app = express();
 // Middlewares globales
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
 
 // CORS básico (ajustar según necesidad)
 app.use((req, res, next) => {
