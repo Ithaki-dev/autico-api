@@ -1,8 +1,10 @@
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const config = require('../config/config');
 const identityService = require('./identityService');
+const emailService = require('./email.service');
 
 /**
  * Servicio de autenticación
@@ -278,6 +280,8 @@ class AuthService {
 
     // Hashear contraseña
     const passwordHash = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     // Crear usuario
     const user = await User.create({
@@ -291,19 +295,65 @@ class AuthService {
       passwordHash,
       provider: 'local',
       isRegistrationComplete: true,
+      isVerified: false,
+      verificationToken,
+      verificationTokenExpires,
     });
 
-    // Generar token JWT tras registro exitoso
-    const token = this.generateAuthToken(user);
+    try {
+      await emailService.sendVerificationEmail({
+        to: user.email,
+        username: user.username,
+        token: verificationToken,
+      });
+    } catch (error) {
+      if (!error.statusCode) {
+        error.statusCode = 500;
+      }
+      throw error;
+    }
 
     return {
-      message: 'Usuario registrado exitosamente',
+      message: 'Usuario registrado exitosamente. Revisa tu correo para verificar tu cuenta.',
       user: {
         ...user.toJSON(),
         id: user._id,
         name: this.buildDisplayName(user),
       },
-      token,
+    };
+  }
+
+  /**
+   * Verificar correo electrónico mediante token
+   */
+  async verifyEmail(token) {
+    const normalizedToken = String(token || '').trim();
+
+    if (!normalizedToken) {
+      const error = new Error('Token de verificación requerido.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const user = await User.findOne({
+      verificationToken: normalizedToken,
+      verificationTokenExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      const error = new Error('Token de verificación inválido o expirado.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+
+    await user.save();
+
+    return {
+      message: 'Correo verificado exitosamente. Ya puedes iniciar sesión.',
     };
   }
 
@@ -332,6 +382,12 @@ class AuthService {
     if (user.provider === 'google') {
       const error = new Error('Esta cuenta fue registrada con Google. Usa inicio de sesión con Google.');
       error.statusCode = 401;
+      throw error;
+    }
+
+    if (!user.isVerified) {
+      const error = new Error('Debes verificar tu correo electrónico antes de iniciar sesión.');
+      error.statusCode = 403;
       throw error;
     }
 
