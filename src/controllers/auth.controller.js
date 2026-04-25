@@ -123,6 +123,39 @@ class AuthController {
   }
 
   /**
+   * Verificar correo electrónico con token
+   * POST /api/auth/verify-email
+   */
+  async verifyEmail(req, res, next) {
+    try {
+      const { token } = req.body;
+
+      if (typeof token !== 'string' || !token.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Token de verificación requerido.',
+        });
+      }
+
+      const result = await authService.verifyEmail(token.trim());
+
+      return res.status(200).json({
+        success: true,
+        message: result.message,
+      });
+    } catch (error) {
+      if (error.statusCode) {
+        return res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      }
+
+      next(error);
+    }
+  }
+
+  /**
    * Callback de autenticación con Google OAuth2
    * GET /api/auth/google/callback
    */
