@@ -86,6 +86,17 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      index: true,
+    },
+    verificationTokenExpires: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -109,6 +120,8 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.passwordHash;
+  delete user.verificationToken;
+  delete user.verificationTokenExpires;
   delete user.__v;
   return user;
 };
