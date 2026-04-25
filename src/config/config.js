@@ -18,6 +18,11 @@ module.exports = {
     callbackUrl: process.env.GOOGLE_CALLBACK_URL,
     frontendRedirectUrl: process.env.GOOGLE_FRONTEND_REDIRECT_URL,
   },
+  email: {
+    sendgridApiKey: process.env.SENDGRID_API_KEY,
+    from: process.env.EMAIL_FROM,
+    frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
+  },
   pagination: {
     defaultPageSize: parseInt(process.env.DEFAULT_PAGE_SIZE) || 10,
     maxPageSize: parseInt(process.env.MAX_PAGE_SIZE) || 100,
