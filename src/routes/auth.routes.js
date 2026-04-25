@@ -47,6 +47,9 @@ router.post('/register', authController.register.bind(authController));
 // Iniciar sesión
 router.post('/login', authController.login.bind(authController));
 
+// Verificar correo electrónico
+router.post('/verify-email', authController.verifyEmail.bind(authController));
+
 // Iniciar OAuth2 con Google
 router.get(
 	'/google',
