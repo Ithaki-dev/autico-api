@@ -23,6 +23,12 @@ module.exports = {
     from: process.env.EMAIL_FROM,
     frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
   },
+  twilio: {
+    accountSid: process.env.TWILIO_ACCOUNT_SID,
+    authToken: process.env.TWILIO_AUTH_TOKEN,
+    fromPhone: process.env.TWILIO_FROM_PHONE,
+    defaultCountryCode: process.env.TWILIO_DEFAULT_COUNTRY_CODE || '+506',
+  },
   pagination: {
     defaultPageSize: parseInt(process.env.DEFAULT_PAGE_SIZE) || 10,
     maxPageSize: parseInt(process.env.MAX_PAGE_SIZE) || 100,
