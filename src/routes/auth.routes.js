@@ -47,6 +47,9 @@ router.post('/register', authController.register.bind(authController));
 // Iniciar sesión
 router.post('/login', authController.login.bind(authController));
 
+// Verificar OTP de 2FA
+router.post('/verify-2fa', authController.verify2FA.bind(authController));
+
 // Verificar correo electrónico
 router.post('/verify-email', authController.verifyEmail.bind(authController));
 
