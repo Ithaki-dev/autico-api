@@ -57,6 +57,13 @@ Para Google OAuth2:
 - GOOGLE_CALLBACK_URL
 - GOOGLE_FRONTEND_REDIRECT_URL
 
+Para 2FA por SMS con Twilio:
+
+- TWILIO_ACCOUNT_SID
+- TWILIO_AUTH_TOKEN
+- TWILIO_FROM_PHONE
+- TWILIO_DEFAULT_COUNTRY_CODE (si los teléfonos se guardan sin prefijo internacional)
+
 ## Endpoints principales
 
 Health:
@@ -67,6 +74,7 @@ Auth local:
 
 - POST /api/auth/register
 - POST /api/auth/login
+- POST /api/auth/verify-2fa
 
 Auth Google:
 
