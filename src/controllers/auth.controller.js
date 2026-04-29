@@ -123,6 +123,26 @@ class AuthController {
   }
 
   /**
+   * Verificar OTP de 2FA y emitir JWT final
+   * POST /api/auth/verify-2fa
+   */
+  async verify2FA(req, res, next) {
+    try {
+      const { tempToken, code } = req.body;
+
+      const result = await authService.verifyTwoFactorCode(tempToken, code);
+
+      res.status(200).json({
+        success: true,
+        message: '2FA validado exitosamente.',
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Verificar correo electrónico con token
    * POST /api/auth/verify-email
    */
