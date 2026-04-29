@@ -2,9 +2,11 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const TwoFactor = require('../models/TwoFactor');
 const config = require('../config/config');
 const identityService = require('./identityService');
 const emailService = require('./email.service');
+const smsService = require('./sms.service');
 
 /**
  * Servicio de autenticación
@@ -228,6 +230,69 @@ class AuthService {
   }
 
   /**
+   * Generar código OTP de 6 dígitos.
+   */
+  generateOtpCode() {
+    const code = crypto.randomInt(0, 1000000);
+    return String(code).padStart(6, '0');
+  }
+
+  /**
+   * Crear token temporal para flujo de login con 2FA.
+   */
+  generateTwoFactorTempToken(user, tokenId) {
+    return jwt.sign(
+      {
+        userId: user._id,
+        sub: String(user._id),
+        purpose: '2fa-login',
+        tokenId,
+      },
+      config.jwt.tempSecret || config.jwt.secret,
+      {
+        expiresIn: '5m',
+      }
+    );
+  }
+
+  /**
+   * Verificar token temporal del flujo 2FA.
+   */
+  verifyTwoFactorTempToken(tempToken) {
+    const payload = jwt.verify(tempToken, config.jwt.tempSecret || config.jwt.secret);
+
+    if (payload.purpose !== '2fa-login' || !payload.userId || !payload.tokenId) {
+      const error = new Error('Token temporal de 2FA inválido.');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    return payload;
+  }
+
+  /**
+   * Enmascarar teléfono para respuesta al cliente.
+   */
+  maskPhone(phone) {
+    const value = String(phone || '').trim();
+
+    if (!value) {
+      return null;
+    }
+
+    const visible = value.slice(-2);
+    const hidden = value.slice(0, -2).replace(/\d/g, '*');
+    return `${hidden}${visible}`;
+  }
+
+  /**
+   * Normalizar teléfono para el flujo 2FA.
+   */
+  normalizePhoneForSms(phone) {
+    return smsService.normalizePhoneNumber(phone);
+  }
+
+  /**
    * Registrar nuevo usuario
    */
   async register(userData) {
@@ -400,7 +465,116 @@ class AuthService {
       throw error;
     }
 
-    // Generar token JWT
+    const normalizedPhone = this.normalizePhoneForSms(user.phone);
+
+    if (!normalizedPhone) {
+      const error = new Error('Tu cuenta no tiene un número de teléfono registrado para 2FA.');
+      error.statusCode = 400;
+      throw error;
+    }
+    /**
+     * Generar código OTP
+     */
+    const otpCode = this.generateOtpCode();
+    const otpHash = crypto.createHash('sha256').update(otpCode).digest('hex');
+    const tempTokenId = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    // Mantener un solo challenge activo por usuario.
+    await TwoFactor.deleteMany({ user: user._id });
+
+    await TwoFactor.create({
+      user: user._id,
+      tempTokenId,
+      otpHash,
+      expiresAt,
+      phone: normalizedPhone,
+    });
+
+    try {
+      await smsService.sendOtp({
+        to: normalizedPhone,
+        code: otpCode,
+      });
+    } catch (error) {
+      await TwoFactor.deleteMany({ user: user._id });
+      throw error;
+    }
+
+    const tempToken = this.generateTwoFactorTempToken(user, tempTokenId);
+
+    return {
+      requires2FA: true,
+      tempToken,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        name: this.buildDisplayName(user),
+        phone: this.maskPhone(normalizedPhone),
+      },
+    };
+  }
+
+  /**
+   * Validar OTP de 2FA y emitir JWT final.
+   */
+  async verifyTwoFactorCode(tempToken, code) {
+    const normalizedToken = String(tempToken || '').trim();
+    const normalizedCode = String(code || '').trim();
+
+    if (!normalizedToken || !normalizedCode) {
+      const error = new Error('tempToken y code son requeridos.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    if (!/^\d{6}$/.test(normalizedCode)) {
+      const error = new Error('El código OTP debe tener 6 dígitos.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const payload = this.verifyTwoFactorTempToken(normalizedToken);
+    const now = new Date();
+
+    const challenge = await TwoFactor.findOne({
+      user: payload.userId,
+      tempTokenId: payload.tokenId,
+      expiresAt: { $gt: now },
+    });
+
+    if (!challenge) {
+      const error = new Error('Código OTP inválido o expirado.');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const incomingHash = crypto.createHash('sha256').update(normalizedCode).digest('hex');
+
+    if (incomingHash !== challenge.otpHash) {
+      const error = new Error('Código OTP inválido o expirado.');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const user = await User.findById(payload.userId);
+
+    if (!user) {
+      const error = new Error('Usuario no encontrado.');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (user.provider === 'google') {
+      const error = new Error('El flujo 2FA por SMS no aplica para usuarios Google.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // Eliminar códigos usados/inactivos del usuario tras validación exitosa.
+    await TwoFactor.deleteMany({ user: user._id });
+
     const token = this.generateAuthToken(user);
 
     return {
